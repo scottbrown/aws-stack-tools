@@ -1,12 +1,9 @@
 package main
 
 import (
-  "fmt"
   "os"
   "github.com/codegangsta/cli"
-  "github.com/aws/aws-sdk-go/aws"
-  "github.com/aws/aws-sdk-go/aws/session"
-  "github.com/aws/aws-sdk-go/service/cloudformation"
+  "github.com/scottbrown/aws-stack-tools/stackutil"
 )
 
 func main() {
@@ -14,6 +11,8 @@ func main() {
   app.Name = "aws-stacks"
   app.Usage = "Displays active AWS Cloudformation stacks"
   app.Version = "1.0.0"
+  app.HideVersion = true
+  app.HideHelp = true
   app.Copyright = "2016"
   app.Authors = []cli.Author {
     cli.Author{
@@ -21,48 +20,45 @@ func main() {
     },
   }
 
-  // --verbose
   verbose := false
+  showHelp := false
+  showVersion := false
   app.Flags = []cli.Flag {
     cli.BoolFlag{
-      Name: "verbose, V",
+      Name: "verbose, v",
       Usage: "Adds more information to the output",
       Destination: &verbose,
     },
+    cli.BoolFlag{
+      Name: "help, h",
+      Usage: "Displays this message",
+      Destination: &showHelp,
+    },
+    cli.BoolFlag{
+      Name: "version",
+      Usage: "Displays the version",
+      Destination: &showVersion,
+    },
   }
 
-  // --region
-
   app.Action = func(c *cli.Context) {
-    println("Verbose is:", verbose)
+    if (showHelp) {
+      println("Help here")
+      return
+    }
+
+    if (showVersion) {
+      println(app.Version)
+      return
+    }
 
     region := ""
     if len(c.Args()) > 0 {
       region = c.Args()[0]
     }
 
-    println("Region is:", region)
-
     // die if the region doesn't exist
-    // ask aws for the list of stack names
-    svc := cloudformation.New(session.New(), &aws.Config{Region: aws.String(region)})
-
-    params := &cloudformation.ListStacksInput{
-      StackStatusFilter: []*string{
-        aws.String("CREATE_COMPLETE"),
-        aws.String("UPDATE_COMPLETE"),
-        aws.String("UPDATE_ROLLBACK_COMPLETE"),
-      },
-    }
-
-    resp, err := svc.ListStacks(params)
-
-    if err != nil {
-      fmt.Println(err.Error())
-      return
-    }
-
-    fmt.Println(resp)
+    stackutil.ActiveStacks(region)
   }
 
   app.Run(os.Args)
