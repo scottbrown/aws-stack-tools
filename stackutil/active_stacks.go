@@ -1,14 +1,26 @@
 package stackutil
 
 import (
-  "fmt"
   "github.com/aws/aws-sdk-go/aws"
   "github.com/aws/aws-sdk-go/aws/session"
   "github.com/aws/aws-sdk-go/service/cloudformation"
+  "sort"
 )
 
-func ActiveStacks(region string) {
-  //stack_names := []string{"a"}
+type StackSummary struct {
+  CreationTime string
+  StackId string
+  StackName string
+  StackStatus string
+  TemplateDescription string
+}
+
+type StackResults struct {
+  StackSummaries []StackSummary
+}
+
+func ActiveStacks(region string) ([]string, error) {
+  var stack_names []string
 
   svc := cloudformation.New(session.New(), &aws.Config{Region: aws.String(region)})
 
@@ -23,12 +35,15 @@ func ActiveStacks(region string) {
   resp, err := svc.ListStacks(params)
 
   if err != nil {
-    fmt.Println(err.Error())
-    return
+    return nil, err
   }
 
-  fmt.Println(resp)
+  for _,element := range resp.StackSummaries {
+    stack_names = append(stack_names, *element.StackName)
+  }
 
-  //return stack_names
+  sort.Strings(stack_names)
+
+  return stack_names, nil
 }
 

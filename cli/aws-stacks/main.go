@@ -1,6 +1,7 @@
 package main
 
 import (
+  "fmt"
   "os"
   "github.com/codegangsta/cli"
   "github.com/scottbrown/aws-stack-tools/stackutil"
@@ -58,7 +59,16 @@ func main() {
     }
 
     // die if the region doesn't exist
-    stackutil.ActiveStacks(region)
+    stack_names, err := stackutil.ActiveStacks(region)
+
+    if err != nil {
+      fmt.Println(err)
+      return
+    }
+
+    for _, i := range stack_names {
+      fmt.Println(i)
+    }
   }
 
   app.Run(os.Args)
