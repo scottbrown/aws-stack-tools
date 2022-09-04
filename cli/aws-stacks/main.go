@@ -3,7 +3,7 @@ package main
 import (
   "fmt"
   "os"
-  "github.com/codegangsta/cli"
+  "github.com/urfave/cli"
   "github.com/scottbrown/aws-stack-tools/stackutil"
 )
 
