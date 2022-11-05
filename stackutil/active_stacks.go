@@ -20,7 +20,7 @@ type StackResults struct {
 }
 
 func ActiveStacks(region string) ([]string, error) {
-	var stack_names []string
+	var stackNames []string
 
 	svc := cloudformation.New(session.New(), &aws.Config{Region: aws.String(region)})
 
@@ -39,10 +39,10 @@ func ActiveStacks(region string) ([]string, error) {
 	}
 
 	for _, element := range resp.StackSummaries {
-		stack_names = append(stack_names, *element.StackName)
+		stackNames = append(stackNames, *element.StackName)
 	}
 
-	sort.Strings(stack_names)
+	sort.Strings(stackNames)
 
-	return stack_names, nil
+	return stackNames, nil
 }
